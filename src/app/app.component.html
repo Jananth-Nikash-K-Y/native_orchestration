@@ -1,0 +1,48 @@
+<div class="container">
+  <h1>Orchestration Layer Demo</h1>
+  
+  <div class="controls">
+    <button (click)="runExample(1)" [disabled]="running">
+      Example 1: Code Gen (High)
+    </button>
+    <button (click)="runExample(2)" [disabled]="running">
+      Example 2: Code Gen (Low)
+    </button>
+    <button (click)="runExample(3)" [disabled]="running">
+      Example 3: Data Processing
+    </button>
+    <button (click)="runExample(4)" [disabled]="running">
+      Example 4: Error Handling
+    </button>
+    <button (click)="runExample(5)" [disabled]="running">
+      Example 5: Unknown Type
+    </button>
+  </div>
+
+  <div *ngIf="running" class="loading">Running...</div>
+
+  <div class="results">
+    <div *ngFor="let result of results; let i = index" class="result-card">
+      <h3>Example {{ i + 1 }}</h3>
+      <div class="path">
+        <strong>Path:</strong> {{ getExecutionPath(result) }}
+      </div>
+      <div class="summary" *ngIf="getSummary(result).executionTime">
+        <strong>Time:</strong> {{ getSummary(result).executionTime }}ms
+        <strong>Tasks:</strong> {{ getSummary(result).tasksExecuted }}
+        <strong>Success:</strong> {{ getSummary(result).success ? 'Yes' : 'No' }}
+      </div>
+      <div *ngIf="result.errors.length > 0" class="errors">
+        <strong>Errors:</strong>
+        <ul>
+          <li *ngFor="let error of result.errors">{{ error.message }}</li>
+        </ul>
+      </div>
+      <details>
+        <summary>Full Context</summary>
+        <pre>{{ result | json }}</pre>
+      </details>
+    </div>
+  </div>
+</div>
+
