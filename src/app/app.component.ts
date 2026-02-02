@@ -63,7 +63,7 @@ export class AppComponent {
   }
 
   getSummary(result: Context): any {
-    return result.results.summary || {};
+    return result.results['summary'] || {};
   }
 }
 

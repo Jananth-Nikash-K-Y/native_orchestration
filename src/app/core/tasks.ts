@@ -16,7 +16,7 @@ export class ValidateInputTask implements Task {
       return { nextTask: 'error-handler' };
     }
 
-    context.results.validation = { valid: true, timestamp: Date.now() };
+    context.results['validation'] = { valid: true, timestamp: Date.now() };
 
     if (input.type === 'code-generation') {
       return { nextTask: 'analyze-requirements' };
@@ -39,7 +39,7 @@ export class AnalyzeRequirementsTask implements Task {
       timestamp: Date.now(),
     };
 
-    context.results.analysis = analysis;
+    context.results['analysis'] = analysis;
     return { nextTask: 'generate-code' };
   }
 }
@@ -48,7 +48,7 @@ export class GenerateCodeTask implements Task {
   name = 'generate-code';
 
   execute(context: Context): TaskResult {
-    const analysis = context.results.analysis;
+    const analysis = context.results['analysis'];
     const requirements = context.input.requirements || '';
 
     const generatedCode = `// Generated code
@@ -60,8 +60,8 @@ function generatedFunction() {
 
 module.exports = { generatedFunction };`;
 
-    context.results.generatedCode = generatedCode;
-    context.results.codeGenerationTime = Date.now();
+    context.results['generatedCode'] = generatedCode;
+    context.results['codeGenerationTime'] = Date.now();
     return { nextTask: 'validate-code' };
   }
 }
@@ -70,7 +70,7 @@ export class ValidateCodeTask implements Task {
   name = 'validate-code';
 
   execute(context: Context): TaskResult {
-    const code = context.results.generatedCode;
+    const code = context.results['generatedCode'];
     
     if (!code || code.length < 10) {
       context.errors.push(new Error('Generated code is invalid'));
@@ -80,7 +80,7 @@ export class ValidateCodeTask implements Task {
     const hasFunction = code.includes('function');
     const hasReturn = code.includes('return');
     
-    context.results.codeValidation = {
+    context.results['codeValidation'] = {
       valid: hasFunction && hasReturn,
       hasFunction,
       hasReturn,
@@ -92,7 +92,7 @@ export class ValidateCodeTask implements Task {
       return { nextTask: 'error-handler' };
     }
 
-    const analysis = context.results.analysis;
+    const analysis = context.results['analysis'];
     if (analysis?.complexity === 'high') {
       return { nextTask: 'optimize-code' };
     }
@@ -105,11 +105,11 @@ export class OptimizeCodeTask implements Task {
   name = 'optimize-code';
 
   execute(context: Context): TaskResult {
-    let code = context.results.generatedCode;
+    let code = context.results['generatedCode'];
     code = code.replace(/\n\s*\n/g, '\n');
     
-    context.results.optimizedCode = code;
-    context.results.optimizationTime = Date.now();
+    context.results['optimizedCode'] = code;
+    context.results['optimizationTime'] = Date.now();
     return { nextTask: 'finalize' };
   }
 }
@@ -125,8 +125,8 @@ export class ProcessDataTask implements Task {
       value: item,
     }));
 
-    context.results.processedData = processed;
-    context.results.processedCount = processed.length;
+    context.results['processedData'] = processed;
+    context.results['processedCount'] = processed.length;
     return { nextTask: 'finalize' };
   }
 }
@@ -147,7 +147,7 @@ export class ErrorHandlerTask implements Task {
 
   execute(context: Context): TaskResult {
     const errors = context.errors;
-    context.results.errorSummary = {
+    context.results['errorSummary'] = {
       count: errors.length,
       messages: errors.map(e => e.message),
       timestamp: Date.now(),
@@ -163,7 +163,7 @@ export class FinalTask implements Task {
     const executionTime = 
       (context.metadata.endTime || Date.now()) - (context.metadata.startTime || 0);
     
-    context.results.summary = {
+    context.results['summary'] = {
       executionTime,
       tasksExecuted: context.metadata.executionPath.length,
       executionPath: context.metadata.executionPath,
